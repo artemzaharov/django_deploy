@@ -1,0 +1,136 @@
+sudo apt update
+sudo apt install postgresql postgresql-contrib
+sudo -u postgres psql
+CREATE USER arch WITH PASSWORD 'FhntvPf[fhjd213';
+CREATE DATABASE db_arch OWNER arch;
+ALTER ROLE arch SET client_encoding TO 'utf8';
+ALTER ROLE arch SET default_transaction_isolation TO 'read committed';
+ALTER ROLE arch SET timezone TO 'UTC';
+\q
+
+sudo apt install python3-pip python3-dev
+sudo apt-get install python3-venv
+python3 -m venv env
+source env/bin/activate
+git clone ........
+pip3 install -r requirements.txt 
+./manage.py migrate
+./manage.py createsuperuser
+./manage.py runserver 0.0.0.0:8000
+pip3 install gunicorn
+pip install django gunicorn psycopg2-binary
+
+Затем найдите раздел, который настраивает доступ к базе данных. Он начинается
+ с ключевого слова DATABASES.
+ Укажите собственные значения переменных NAME,USER,PASSWORD
+ ранее созданных в PostgreSQL:
+
+DATABASES = {
+'default': {
+'ENGINE': 'django.db.backends.postgresql_psycopg2',
+'NAME': 'cloudproject',
+'USER': 'clouduser',
+'PASSWORD': 'password',
+'HOST': 'localhost',
+'PORT': '',
+}
+}
+
+$ deactivate
+source /venv/bin/activate
+pip install -I gunicorn
+Работает из папки с проектом
+
+gunicorn --bind 0.0.0.0:8000 alternativa_tv.wsgi
+mkdir -p ~/env/etc/gunicorn
+cd ~/env/etc/gunicorn/
+nano conf.py
+
+workers = 3
+keepalive = 5
+user = 'arch'
+proc_name = 'altTV' 
+errorlog = '/home/arch/env/var/log/gunicorn-error.log'
+accesslog = '/home/arch/env/var/log/gunicorn-access.log'
+bind = 'unix:/home/usr_pet/env/run/gunicorn.sock'
+raw_enw = ['DJANGO_SETTINGS_MODULE=alternativa_tv.settings.production',]
+pythonpath = '/home/arch/alternativa_tv'
+
+
+
+mkdir -p ~/env/var/log
+mkdir ~/env/run
+cd ~
+deactivate
+sudo apt-get update
+sudo apt-get install nginx
+cd /etc/nginx/
+ls
+cd sites-available/
+
+server{
+        server_name readyforga.ga www.readyforga.ga;
+
+        access_log /home/arch/env/var/log/ngnix-access.log;
+        error_log /home/arch/env/var/log/ngnix-error.log;
+
+        location =/favicon.ico { access_log off; log_not_found off;}
+        location /static/ {
+                root /home/arch/alternativa_tv;
+        }
+        location /media/ {
+                root /home/arch/alternativa_tv;
+        }
+
+        location / {
+                include proxy_params;
+                proxy_pass http://unix:/home/arch/env/run/gunicirn.sock;
+        }
+}
+
+sudo ln -s /etc/nginx/sites-available/alternativa_tv /etc/nginx/sites-enabled
+cd ../sites-enabled/
+ls
+sudo ngnix -t
+cd ~
+source env/bin/activate
+cd alternativa_tv
+gunicorn alternativa_tv.wsgi --config /home/arch/etc/gunicorn/conf.py
+sudo systemctl restart nginx
+sudo nano production.py
+
+ALLOWED_HOSTS = ['readyforga.ga','www.readyforga.ga']
+
+usermod -a -G sudo arch
+sudo chmod 777 /home/arch/env/run  
+sudo apt-get install supervisor 
+cd /etc/superviser/
+cd conf.d
+sudo nano alternativa_tv_gun.conf
+
+[program:alternativa_tv_gun]
+command=/home/arch/env/bin/gunicorn alternativa_tv.wsgi:application --config /home/arch/env/etc/gunicorn/conf.py
+user=arch
+autostart=true
+autorestart=true
+
+sudo nano alternativa_tv_nginx.conf
+
+[program:alternativa_tv_nginx]
+command=/usr/sbin/nginx -g "daemon off;"
+autostart=true
+autorestart=true
+stderr_logfile=/home/arch/env/var/log/ngnix-error.log
+stdout_logfile=/home/arch/env/var/log/ngnix-access.log
+
+
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl startall
+sudo supervisorctl status
+sudo fuser -k 80/tcp
+
+
+
+
+
