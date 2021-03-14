@@ -26,15 +26,15 @@ pip install django gunicorn psycopg2-binary
  ранее созданных в PostgreSQL:
 
 DATABASES = {
-'default': {
-'ENGINE': 'django.db.backends.postgresql_psycopg2',
-'NAME': 'cloudproject',
-'USER': 'clouduser',
-'PASSWORD': 'password',
-'HOST': 'localhost',
-'PORT': '',
+        'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'db_arch',
+        'USER': 'arch',
+        'PASSWORD': 'FhntvPf[fhjd213',
+        'HOST': 'localhost',
+        'PORT': '',
 }
-}
+
 
 $ deactivate
 source /venv/bin/activate
@@ -52,7 +52,7 @@ user = 'arch'
 proc_name = 'altTV' 
 errorlog = '/home/arch/env/var/log/gunicorn-error.log'
 accesslog = '/home/arch/env/var/log/gunicorn-access.log'
-bind = 'unix:/home/usr_pet/env/run/gunicorn.sock'
+bind = 'unix:/home/arch/env/run/gunicorn.sock'
 raw_enw = ['DJANGO_SETTINGS_MODULE=alternativa_tv.settings.production',]
 pythonpath = '/home/arch/alternativa_tv'
 
@@ -67,9 +67,10 @@ sudo apt-get install nginx
 cd /etc/nginx/
 ls
 cd sites-available/
+sudo nano alternativa_tv
 
 server{
-        server_name readyforga.ga www.readyforga.ga;
+        server_name alternativatv.ru www.alternativatv.ru;
 
         access_log /home/arch/env/var/log/ngnix-access.log;
         error_log /home/arch/env/var/log/ngnix-error.log;
@@ -84,25 +85,24 @@ server{
 
         location / {
                 include proxy_params;
-                proxy_pass http://unix:/home/arch/env/run/gunicirn.sock;
+                proxy_pass http://unix:/home/arch/env/run/gunicorn.sock;
         }
 }
 
 sudo ln -s /etc/nginx/sites-available/alternativa_tv /etc/nginx/sites-enabled
 cd ../sites-enabled/
 ls
-sudo ngnix -t
+sudo nginx -t
 cd ~
 source env/bin/activate
 cd alternativa_tv
-gunicorn alternativa_tv.wsgi --config /home/arch/etc/gunicorn/conf.py
+gunicorn alternativa_tv.wsgi --config /home/arch/env/etc/gunicorn/conf.py
 sudo systemctl restart nginx
+в файле проекта wsgi.py меняем dev на production
 sudo nano production.py
 
 ALLOWED_HOSTS = ['readyforga.ga','www.readyforga.ga']
 
-usermod -a -G sudo arch
-sudo chmod 777 /home/arch/env/run  
 sudo apt-get install supervisor 
 cd /etc/superviser/
 cd conf.d
@@ -126,11 +126,14 @@ stdout_logfile=/home/arch/env/var/log/ngnix-access.log
 
 sudo supervisorctl reread
 sudo supervisorctl update
-sudo supervisorctl startall
+sudo supervisorctl start all
 sudo supervisorctl status
 sudo fuser -k 80/tcp
 
-
+su root
+add-apt-repository ppa:certbot/certbot
+apt install python-certbot-nginx
+certbot --nginx -d alternativatv.ru -d www.alternativatv.ru
 
 
 
